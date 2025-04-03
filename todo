@@ -1,0 +1,134 @@
+#!/bin/python
+
+import sys
+
+
+
+
+def help():
+    print("\n### Python Todo ###\n")
+    print("\ntodo [operation] [options]")
+    print("\n--help,-h,help,h              displays this message")
+    print("\n--new,-n,new,n                create new task")
+    print("  todo --new [title] [due]")
+    print("\n--remove,-r,remove,r          remove a task")
+    print("  todo -r [index]")
+    print("\n--complete,-c,complete,c      complete a task")
+    print("  todo c [index]")
+    print("")
+    print("")
+    print("")
+
+
+
+def new(title,file):
+    print(F"New task: {title}")
+    with open(file, 'r') as f:
+        tasks = f.readlines()
+
+    with open(file, 'a') as f:
+        f.write(F"{title}\n")
+
+
+
+def edit(rindex,newtitle,file):
+    index = 1
+    with open(file, 'r') as f:
+        tasks = f.readlines()
+
+    with open(file, 'w') as f:
+        f.truncate()
+
+    with open(file, 'a') as f:
+        for i in tasks:
+            if(index != rindex):
+                f.write(tasks[index-1])
+            else:
+                f.write(F"{newtitle}\n")
+            index += 1
+        i = tasks[rindex-1]
+        si = i.strip('\n')
+        print(F"Changed task: '{si}' to '{newtitle}'")
+
+
+
+def remove(rindex,file):
+    index = 1
+    with open(file, 'r') as f:
+        tasks = f.readlines()
+
+    with open(file, 'w') as f:
+        f.truncate()
+
+    with open(file, 'a') as f:
+        for i in tasks:
+            if(index != rindex):
+                f.write(tasks[index-1])
+            index += 1
+        i = tasks[rindex-1]
+        si = i.strip('\n')
+        print(F"Removed task: {si}")
+
+def complete(index,file,completefile):
+    print("complete")
+
+
+
+def list(file):
+    print("### Todo ###\n")
+    index = 1
+    
+    with open(file, 'r') as f:
+        tasks = f.readlines()
+        
+    for i in tasks:
+        si = i.strip('\n')
+        print(F"{index}:  {si}")
+        index += 1
+
+
+
+args = sys.argv
+
+homePath = "/home/rosetta/"
+currentTaskFile = homePath+".local/share/todo-tasks/current"
+completedTaskFile = homePath+".local/share/todo-tasks/completed"
+    
+
+if(len(args) > 1):
+    if(args[1] in ("--help","-h","h","help")):
+        help()
+    elif(args[1] in ("--new","-n","n","new")):
+        del args[0:2]
+        args2 = ' '.join(args)
+        new(args2,currentTaskFile)
+    
+    elif(args[1] in ("--edit","-e","e","edit")):
+        try:
+            args2 = args[2]
+            del args[0:3]
+            args3 = ' '.join(args)
+            try:
+                edit(int(args2),args3,currentTaskFile)
+            except IndexError:
+                print(F"todo --edit: Invalid index: {args2}")
+        except IndexError:
+            print("todo --edit: Not enough arguments")
+
+    elif(args[1] in ("--remove","-r","r","remove")):
+        try:
+            try:
+                remove(int(args[2]),currentTaskFile)
+            except IndexError:
+                print(F"todo --remove: Invaid index: {args[2]}")
+        except IndexError:
+            print("todo --remove: Not enough arguments")
+     
+    elif(args[1] in ("--complete","-c","c","complete")):
+        complete()
+        
+    elif(args[1] in ("--list","-l","l","list")):
+        list(currentTaskFile)
+else:
+    list(currentTaskFile)
+
